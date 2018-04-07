@@ -1,3 +1,12 @@
+/** \file */
+
+/** \brief This file implements all the functions for a distributed file system.
+ *
+ * Functions for a DFS include join, ls (list), touch, delete,
+ * read (read a given page), tail (read first page), head (read last page),
+ * append, and mv (rename file).
+ */
+
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import java.rmi.*;
@@ -52,6 +61,11 @@ public class DFS
     int port;
     Chord  chord;
     
+    /**
+ 	* Hashes an object using MD5
+ 	* \param object the item to hash
+ 	* \return randomly generated ID
+ 	*/
     private long md5(String objectName)
     {
         try
@@ -69,6 +83,10 @@ public class DFS
         return 0;
     }
     
+    /**
+ 	* Constructs a file system with a port
+ 	* \param port the destination for the system to connect
+ 	*/
     public DFS(int port) throws Exception
     {
         
@@ -78,12 +96,15 @@ public class DFS
         Files.createDirectories(Paths.get(guid+"/repository"));
     }
     
+    /**
+ 	* Join distributed file system
+ 	* \param in the scanner object from client
+ 	*/
     public void join(Scanner in) throws Exception
     {
         System.out.print("Type in the IP address: ");
         String ip = in.next();
         
-        //Port that is being connected to.
         if(!ip.equals(null)){
             System.out.print("Type in the port: ");
             int port = in.nextInt();
@@ -104,6 +125,10 @@ public class DFS
         return jsonParser;
     }*/
 
+    /**
+ 	* Reads metadata
+ 	* \return metadata
+ 	*/
     //Will need to throw exception?
     public JsonReader readMetaData(){
         ChordMessageInterface peer = null;
@@ -125,6 +150,10 @@ public class DFS
         return jReader;
     }
     
+    /**
+ 	* Prints structure and objects of a file system
+ 	* \param jReader the Json reader
+ 	*/
     public void getFileSystem(JsonReader jReader){
         String json = "{\"brand\" : \"Toyota\", \"doors\" : 5}";
         JsonReader jsonReader = new JsonReader(new StringReader(json));
@@ -180,9 +209,9 @@ public class DFS
   */
 
     /**
-     * To write out the index info that has been read from a file
-     * @param InputStream the file system info that is being written to the file system
-     */
+ 	* To write out the index info that has been read from a file
+ 	* \param stream the file system info that is being written to the file system
+ 	*/
     public void writeMetaData(InputStream stream){
         long guid = md5("Metadata");
         ChordMessageInterface peer = null;
@@ -197,6 +226,10 @@ public class DFS
         } catch (Exception e){e.printStackTrace();}
     }
     
+    /**
+ 	* Renames metadata
+ 	* \param in the scanner object from client
+ 	*/
     public void mv(Scanner in) throws Exception
     {
         String oldname = "";
@@ -214,6 +247,10 @@ public class DFS
         // Write Metadata
     }
 
+    /**
+ 	* Prints a list of all the files in the DFS
+ 	* \return list of all the files in the DFS
+ 	*/
     public String ls() throws Exception
     {
         String listOfFiles = "";
@@ -227,6 +264,10 @@ public class DFS
         return listOfFiles;
     }
  
+    /**
+ 	* Creates file in DFS
+ 	* \param in the scanner object from client
+ 	*/
     public void touch(Scanner in) throws Exception
     {
         String filename = "";
@@ -240,6 +281,10 @@ public class DFS
         //add file to metadata
     }
 
+    /**
+ 	* Deletes file and metadata
+ 	* \param in the scanner object from client
+ 	*/
     public void delete(Scanner in) throws Exception
     {
         String filename = "";
@@ -247,14 +292,30 @@ public class DFS
         if(in.hasNext()){
             filename = in.next();
         }
-        // TODO: remove all the pages in the entry fileName in the Metadata and then the entry
-        // for each page in Metadata.filename
-        //     peer = chord.locateSuccessor(page.guid);
-        //     peer.delete(page.guid)
-        // delete Metadata.filename
-        // Write Metadata 
+
+        String[] parsed = filename.split("/");
+        long guid = Long.parseLong(parsed[1]);
+        long guidObject = Long.parseLong(parsed[3]);
+
+        InputStream file = get(guidObject);
+        
+        //maybe pass a different filename through new FileReader()?
+        FileSystem test = gson.fromJson(new FileReader(filename), FileSystem.class);
+        for(int i = 0; i < 2; i++){
+            for(int j = 0; j < 10; j++){
+                peer = chord.locateSuccessor(test.getMetadata().getFile()[i].getPage()[j].getGuid());
+                peer.delete(test.getMetadata().getFile()[i].getPage()[j].getGuid());
+            }
+        } 
+        delete(guidObject);
+        put(guid, file);
     }
     
+    /**
+ 	* Reads a given page of a file
+ 	* \param in the scanner object from client
+ 	* \return the desired page file
+ 	*/
     public Byte[] read(Scanner in) throws Exception
     {
         String filename = "";
@@ -276,6 +337,11 @@ public class DFS
         return null;
     }
     
+    /**
+ 	* Reads last page of a file
+ 	* \param in the scanner object from client
+ 	* \return the last page file
+ 	*/
     public Byte[] tail(Scanner in) throws Exception
     {
         String filename = "";
@@ -284,13 +350,26 @@ public class DFS
             filename = in.next();
         }
         
-        //search for file name in file system
-        //if file found
-        //  return first page AKA page[pageSize - 1]
-        //else
-        return null;
+        String[] parsed = filename.split("/");
+        long guid = Long.parseLong(parsed[1]);
+        long guidObject = Long.parseLong(parsed[3]);
+        InputStream file = get(guidObject);
+        
+        //maybe pass a different filename through new FileReader()?
+        FileSystem test = gson.fromJson(new FileReader(filename), FileSystem.class);
+        if(file != null){
+        	int index = test.getMetadata().getFile().getNumberOfPages();
+        	return test.getMetadata().getFile().getPage()[index - 1];
+        }
+        else
+        	return null;
     }
 
+    /**
+ 	* Reads first page of a file
+ 	* \param in the scanner object from client
+ 	* \return the first page file
+ 	*/
     public Byte[] head(Scanner in) throws Exception
     {
         String filename = "";
@@ -299,13 +378,23 @@ public class DFS
             filename = in.next();
         }
         
-        // search for file name in file system
-        //if file found
-        //  return first page AKA page[0]
-        //else
-        return null;
+        String[] parsed = filename.split("/");
+        long guid = Long.parseLong(parsed[1]);
+        long guidObject = Long.parseLong(parsed[3]);
+        InputStream file = get(guidObject);
+        
+        //maybe pass a different filename through new FileReader()?
+        FileSystem test = gson.fromJson(new FileReader(filename), FileSystem.class);
+        if(file != null)
+        	return test.getMetadata().getFile()[i].getPage()[0];
+        else
+        	return null;
     }
 
+    /**
+ 	* Add to file
+ 	* \param in the scanner object from client
+ 	*/
     public void append(Scanner in) throws Exception
     {
         String filename = "";

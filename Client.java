@@ -1,3 +1,10 @@
+/** \file */
+
+/** \brief This file implements the client side of interacting with distributed file system.
+ *
+ * Instantiates a file system and allows a user to interact with a DFS with provided menu
+ */
+
 import java.rmi.*;
 import java.net.*;
 import java.util.*;
@@ -8,10 +15,6 @@ import java.nio.charset.Charset;
 import java.nio.file.*;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-
-
-
-
 
 public class Client {
     DFS dfs;
@@ -31,10 +34,8 @@ public class Client {
         
         try {
             fWriter = new FileWriter("327FS.json"); //Create a writer to write to json file
-            fWriter.write(gson.toJson(fileSystem)); //Write FileSystem object to json file
-            
+            fWriter.write(gson.toJson(fileSystem)); //Write FileSystem object to json file            
             jsonFileStream = new FileStream("327FS.json");
-
             
             //System.out.println(convert(jsonFileStream, Charset.defaultCharset())); //Display json contents
 
@@ -53,9 +54,6 @@ public class Client {
             }
         }
         
-        
-        
-
         Scanner in = new Scanner(System.in);
         int input = 0;
 
