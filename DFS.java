@@ -114,7 +114,6 @@ public class DFS
         chord.Print();
     }
 
-    //QUESTION: do we ignore this JsonParser in favor of the GSON?
   /*  public JSonParser readMetaData() throws Exception
     {
         JsonParser jsonParser _ null;
@@ -136,8 +135,8 @@ public class DFS
         InputStream mdRaw = null;
         long guid = md5("Metadata");
         
-            try { peer = chord.locateSuccessor(guid);}
-            catch(Exception e){ e.printStackTrace();}
+        try { peer = chord.locateSuccessor(guid);}
+        catch(Exception e){ e.printStackTrace();}
         try{mdRaw = peer.get(guid);} //Retrieve InputStream from Chord
         catch(IOException e){e.printStackTrace();}
 
@@ -154,9 +153,9 @@ public class DFS
  	* Prints structure and objects of a file system
  	* \param jReader the Json reader
  	*/
-    public void getFileSystem(JsonReader jReader){
-        String json = "{\"brand\" : \"Toyota\", \"doors\" : 5}";
-        JsonReader jsonReader = new JsonReader(new StringReader(json));
+    public void getFileSystem(JsonReader jsonReader){
+        // String json = "{\"brand\" : \"Toyota\", \"doors\" : 5}";
+        // JsonReader jsonReader = new JsonReader(new StringReader(json));
 
         try {
             while(jsonReader.hasNext()){
@@ -187,15 +186,6 @@ public class DFS
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // FileSystem fSys = null;
-        // Gson gson = new Gson();
-
-        // try{
-        //     fSys = gson.fromJson(jReader, FileSystem.class); // Retrieve FileSystem object from json file
-        // }
-        // catch(Exception e){ e.printStackTrace();}
-        
         // return fSys;
     }
 
@@ -293,22 +283,22 @@ public class DFS
             filename = in.next();
         }
 
-        String[] parsed = filename.split("/");
-        long guid = Long.parseLong(parsed[1]);
-        long guidObject = Long.parseLong(parsed[3]);
+        // String[] parsed = filename.split("/");
+        // long guid = Long.parseLong(parsed[1]);
+        // long guidObject = Long.parseLong(parsed[3]);
 
-        InputStream file = get(guidObject);
+        // InputStream file = get(guidObject);
         
-        //maybe pass a different filename through new FileReader()?
-        FileSystem test = gson.fromJson(new FileReader(filename), FileSystem.class);
-        for(int i = 0; i < 2; i++){
-            for(int j = 0; j < 10; j++){
-                peer = chord.locateSuccessor(test.getMetadata().getFile()[i].getPage()[j].getGuid());
-                peer.delete(test.getMetadata().getFile()[i].getPage()[j].getGuid());
-            }
-        } 
-        delete(guidObject);
-        put(guid, file);
+        // //maybe pass a different filename through new FileReader()?
+        // FileSystem test = gson.fromJson(new FileReader(filename), FileSystem.class);
+        // for(int i = 0; i < 2; i++){
+        //     for(int j = 0; j < 10; j++){
+        //         peer = chord.locateSuccessor(test.getMetadata().getFile()[i].getPage()[j].getGuid());
+        //         peer.delete(test.getMetadata().getFile()[i].getPage()[j].getGuid());
+        //     }
+        // } 
+        // delete(guidObject);
+        // put(guid, file);
     }
     
     /**
@@ -350,18 +340,18 @@ public class DFS
             filename = in.next();
         }
         
-        String[] parsed = filename.split("/");
-        long guid = Long.parseLong(parsed[1]);
-        long guidObject = Long.parseLong(parsed[3]);
-        InputStream file = get(guidObject);
+        // String[] parsed = filename.split("/");
+        // long guid = Long.parseLong(parsed[1]);
+        // long guidObject = Long.parseLong(parsed[3]);
+        // InputStream file = get(guidObject);
         
-        //maybe pass a different filename through new FileReader()?
-        FileSystem test = gson.fromJson(new FileReader(filename), FileSystem.class);
-        if(file != null){
-        	int index = test.getMetadata().getFile().getNumberOfPages();
-        	return test.getMetadata().getFile().getPage()[index - 1];
-        }
-        else
+        // //maybe pass a different filename through new FileReader()?
+        // FileSystem test = gson.fromJson(new FileReader(filename), FileSystem.class);
+        // if(file != null){
+        // 	int index = test.getMetadata().getFile().getNumberOfPages();
+        // 	return test.getMetadata().getFile().getPage()[index - 1];
+        // }
+        // else
         	return null;
     }
 
@@ -378,16 +368,16 @@ public class DFS
             filename = in.next();
         }
         
-        String[] parsed = filename.split("/");
-        long guid = Long.parseLong(parsed[1]);
-        long guidObject = Long.parseLong(parsed[3]);
-        InputStream file = get(guidObject);
+        // String[] parsed = filename.split("/");
+        // long guid = Long.parseLong(parsed[1]);
+        // long guidObject = Long.parseLong(parsed[3]);
+        // InputStream file = get(guidObject);
         
-        //maybe pass a different filename through new FileReader()?
-        FileSystem test = gson.fromJson(new FileReader(filename), FileSystem.class);
-        if(file != null)
-        	return test.getMetadata().getFile()[i].getPage()[0];
-        else
+        // //maybe pass a different filename through new FileReader()?
+        // FileSystem test = gson.fromJson(new FileReader(filename), FileSystem.class);
+        // if(file != null)
+        // 	return test.getMetadata().getFile()[i].getPage()[0];
+        // else
         	return null;
     }
 

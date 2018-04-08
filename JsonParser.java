@@ -23,7 +23,6 @@ public class JsonParser {
        //Creating Metadata objects and file strucuture object
        Metadata mData = new Metadata(songs);
        FileSystem uFS = new FileSystem(mData);
-       FileSystem zFS = new FileSystem();
 
        // Examples of Writing to JSON
        try {
